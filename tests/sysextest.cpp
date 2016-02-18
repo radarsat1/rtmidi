@@ -40,6 +40,11 @@ void mycallback( double deltatime, std::vector< unsigned char > *message, void *
     std::cout << "stamp = " << deltatime << std::endl;
 }
 
+void errorCallback( RtMidiError::Type, const std::string&, void* )
+{
+    std::cout << "errorCallback()" << std::endl;
+}
+
 int main( int argc, char *argv[] )
 {
   RtMidiOut *midiout = 0;
@@ -74,6 +79,7 @@ int main( int argc, char *argv[] )
   }
 
   midiin->setCallback( &mycallback );
+  midiin->setErrorCallback( &errorCallback );
 
   message.push_back( 0xF6 );
   midiout->sendMessage( &message );
