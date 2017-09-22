@@ -97,6 +97,33 @@ void RtMidi :: getCompiledApi( std::vector<RtMidi::Api> &apis ) throw()
 //  RtMidiIn Definitions
 //*********************************************************************//
 
+RtMidi::Api RtMidiIn :: getMidiApi( RtMidi::Api api )
+{
+  // TODO iterate the APIs and check if they have ports open using the
+  // 'fast' function, then call this in the UNSPECIFIED case and ... bleh
+#if defined(__UNIX_JACK__)
+  if ( api == UNIX_JACK )
+    rtapi_ = new MidiInJack( clientName, queueSizeLimit );
+#endif
+#if defined(__LINUX_ALSA__)
+  if ( api == LINUX_ALSA )
+    rtapi_ = new MidiInAlsa( clientName, queueSizeLimit );
+#endif
+#if defined(__WINDOWS_MM__)
+  if ( api == WINDOWS_MM )
+    rtapi_ = new MidiInWinMM( clientName, queueSizeLimit );
+#endif
+#if defined(__MACOSX_CORE__)
+  if ( api == MACOSX_CORE )
+    rtapi_ = new MidiInCore( clientName, queueSizeLimit );
+#endif
+#if defined(__RTMIDI_DUMMY__)
+  if ( api == RTMIDI_DUMMY )
+    rtapi_ = new MidiInDummy( clientName, queueSizeLimit );
+#endif
+  return api;
+}
+
 void RtMidiIn :: openMidiApi( RtMidi::Api api, const std::string &clientName, unsigned int queueSizeLimit )
 {
   delete rtapi_;
@@ -160,6 +187,13 @@ RtMidiIn :: ~RtMidiIn() throw()
 {
 }
 
+unsigned int RtMidiIn :: getPortCountFast( RtMidi::Api api )
+{
+}
+
+bool RtMidiIn :: isMidiAvailable( RtMidi::Api api )
+{
+}
 
 //*********************************************************************//
 //  RtMidiOut Definitions

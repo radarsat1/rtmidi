@@ -333,7 +333,20 @@ class RtMidiIn : public RtMidi
   */
   virtual void setErrorCallback( RtMidiErrorCallback errorCallback = NULL, void *userData = 0 );
 
+  //! Static version of getPortCount() that returns the port count without instantiating a MIDI client (if possible), which on some systems is significantly faster.
+  /*!
+    \param api        An optional API id can be specified.
+  */
+  static unsigned int getPortCountFast( RtMidi::Api api=UNSPECIFIED );
+
+  //! Static function that returns whether MIDI is available or not without instantiating a client (if possible), which on some systems is significantly faster.
+  /*!
+    \param api        An optional API id can be specified.
+  */
+  static bool isMidiAvailable( RtMidi::Api api=UNSPECIFIED );
+
  protected:
+  void getMidiApi( RtMidi::Api api );
   void openMidiApi( RtMidi::Api api, const std::string &clientName, unsigned int queueSizeLimit );
 
 };
@@ -440,6 +453,18 @@ class RtMidiOut : public RtMidi
   */
   virtual void setErrorCallback( RtMidiErrorCallback errorCallback = NULL, void *userData = 0 );
 
+  //! Static version of getPortCount() that returns the port count without instantiating a MIDI client (if possible), which on some systems is significantly faster.
+  /*!
+    \param api        An optional API id can be specified.
+  */
+  static unsigned int getPortCountFast( RtMidi::Api api=UNSPECIFIED );
+
+  //! Static function that returns whether MIDI is available or not without instantiating a client (if possible), which on some systems is significantly faster.
+  /*!
+    \param api        An optional API id can be specified.
+  */
+  static bool isMidiAvailable( RtMidi::Api api=UNSPECIFIED );
+
  protected:
   void openMidiApi( RtMidi::Api api, const std::string &clientName );
 };
@@ -487,6 +512,9 @@ protected:
   RtMidiErrorCallback errorCallback_;
   bool firstErrorOccurred_;
   void *errorCallbackUserData_;
+
+  static bool hasGetPortCountFast() = 0;
+  static bool hasIsMidiAvailable() = 0;
 };
 
 class MidiInApi : public MidiApi
