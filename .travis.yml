@@ -1,10 +1,22 @@
-os: osx
+os:
+- linux
+- osx
+sudo: false # docker VM
 language: cpp
+packages:
 compiler:
 - clang
 - gcc
-before_script:
-- brew update
-- brew install doxygen
-- ./autogen.sh
-script: make distcheck
+env:
+- TOOL="gcc"
+- TOOL="clang"
+- TOOL="i686-w64-mingw32"
+- TOOL="x86_64-w64-mingw32"
+- TOOL="arm-linux-gnueabihf"
+install:
+- if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libasound2-dev libjack-dev doxygen; fi
+- if [ $TRAVIS_OS_NAME = osx ]; then brew install doxygen || (brew update && brew install doxygen); fi
+script: ./autogen.sh && make
+after_script:
+- make check
+- make distcheck
