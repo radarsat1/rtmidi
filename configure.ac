@@ -131,88 +131,11 @@ AC_CANONICAL_HOST
 
 AC_MSG_CHECKING(for MIDI API)
 
-AS_IF([test "x$with_jack" = "xyes"], [
-api="$api -D__UNIX_JACK__"
-AC_MSG_RESULT(using JACK)
-AC_CHECK_LIB(jack, jack_client_open, , AC_MSG_ERROR(JACK support requires the jack library!))])
-
-case $host in
-  *-*-linux*)
-  # Look for ALSA flag
-  AS_IF([test "x$with_alsa" = "xyes"], [
-    AC_MSG_RESULT(using ALSA)
-    AC_CHECK_LIB(asound, snd_seq_open, , AC_MSG_ERROR(ALSA support requires the asound library!))
-    api="$api -D__LINUX_ALSA__"
-    req="$req alsa"
-  ])
-
-  AS_IF([test "x${api}" = "x"],
-    AC_MSG_RESULT(using ALSA)
-    AC_CHECK_LIB(asound, snd_seq_open, , AC_MSG_ERROR(ALSA sequencer support requires the asound library!))
-    api="-D__LINUX_ALSA__ ${api}"
-    req="$req alsa"
-  )
-
-  # Checks for pthread library.
-  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(RtMidi requires the pthread library!))
-  ;;
-
-  *-*-freebsd*)
-  # Checks for pthread library.
-  AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(RtMidi requires the pthread library!))
-  ;;
-
-  *-apple*)
-  # Look for Core flag
-  AS_IF([test "x$with_core" = "xyes"], [
-    AC_MSG_RESULT(using CoreMidi)
-    AC_CHECK_HEADER(CoreMIDI/CoreMIDI.h, [], [AC_MSG_ERROR(CoreMIDI header files not found!)] )
-    LIBS="-framework CoreMIDI -framework CoreFoundation -framework CoreAudio ${LIBS}"
-    api="$api -D__MACOSX_CORE__"
-  ])
-
-  # If no api flags specified, use CoreMidi
-  AS_IF([test "x${api}" = "x"],
-    AC_MSG_RESULT(using CoreMidi)
-    AC_CHECK_HEADER(CoreMIDI/CoreMIDI.h,
-      [],
-      [AC_MSG_ERROR(CoreMIDI header files not found!)] )
-    LIBS="-framework CoreMIDI -framework CoreFoundation -framework CoreAudio ${LIBS}"
-    api="$api -D__MACOSX_CORE__"
-  )
-  ;;
-
-  *-mingw32*|*-mingw64*)
-  # Look for WinMM flag
-  AS_IF([test "x$with_winmm" = "xyes"], [
-    AC_MSG_RESULT(using WinMM)
-    LIBS="-lwinmm ${LIBS}"
-    api="$api -D__WINDOWS_MM__"
-  ])
-
-  AS_IF([test "x$with_winks" = "xyes"], [
-    AC_MSG_RESULT(using kernel streaming)
-    LIBS="-lsetupapi -lksuser ${LIBS}"
-    api="$api -D__WINDOWS_KS__"
-  ])
-
-  # I can't get the following check to work so just manually add the library
-	# or could try the following?  AC_LIB_WINMM([midiOutGetNumDevs])
-  # AC_CHECK_LIB(winmm, midiInGetNumDevs, , AC_MSG_ERROR(Windows MIDI support requires the winmm library!) )],)
-
-  # If no api flags specified, use WinMM
-  AS_IF([test "x${api}" = "x"], [
-    AC_MSG_RESULT(using WinMM)
-    LIBS="-lwinmm ${LIBS}"
-    api="${api} -D__WINDOWS_MM__"
-  ])
-  ;;
-
-  *)
-  # Default case for unknown realtime systems.
-  AC_MSG_ERROR(Unknown system type for MIDI support!)
-  ;;
-esac
+# Force winmm
+AC_MSG_RESULT(using WinMM)
+  LIBS="-lwinmm ${LIBS}"
+  api="$api -D__WINDOWS_MM__"
+])
 
 CPPFLAGS="$CPPFLAGS $api"
 
